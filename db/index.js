@@ -25,6 +25,8 @@ const db = {
 
 db.models.Course = require('./models/Course.js')(sequelize);
 db.models.User = require('./models/User.js')(sequelize);
+db.models.User.associate(db.models);
+db.models.Course.associate(db.models);
 
 //Verify databse connecitvity
 async function connect(){
