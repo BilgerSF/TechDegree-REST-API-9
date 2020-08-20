@@ -14,9 +14,9 @@
 To create a back-end application that allows users to manage courses on a school’s database by allowing them the request and insert data into the school’s database.
 
 ## Installation
-Install all the dependencies(nmp modules)
+- Install all the dependencies(nmp modules)
  npm install
-Start the server
+- Start the server
  npm nodemon app.js
-Send request to the server by an API tool.
+- Send request to the server by an API tool.
 
