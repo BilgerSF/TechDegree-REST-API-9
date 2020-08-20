@@ -22,10 +22,22 @@ router.get('/users',userAuthentication.authenticate,(req,res)=>{
 
 //.............................................Creates a user............................//
 router.post('/users',[
-   body('firstName').exists().withMessage('Please provide a firstName on the requests body'),
-   body('lastName').exists().withMessage('Please provide a lastName on the requests body'),
-   body('emailAddress').exists().isEmail().withMessage('Please provide a emailAddress on the requests body'), 
-   body('password').exists().withMessage('Please provide a password on the requests body') 
+      check('firstName')
+         .exists({ checkNull: true, checkFalsy: true })
+         .withMessage('Please provide a value for first name '),
+      check('lastName')
+         .exists({ checkNull: true, checkFalsy: true })
+         .withMessage('Please provide a value for last name '),
+      check('emailAddress')
+         .exists({ checkNull: true, checkFalsy: true })
+         .withMessage('Please provide a value for email ')
+         .isEmail()
+         .withMessage('Please provide a valid email address '),
+      check('password')
+         .exists({ checkNull: true, checkFalsy: true })
+         .withMessage('Please provide a value for password ')
+         .isLength({ min: 5, max: 20 })
+         .withMessage('Please provide a password that contains between 5 and 20 characters'),
 ],
    async (req,res)=>{
 //Finds the validation errors in this request and wraps them in an object with handy functions    

@@ -74,6 +74,6 @@ Course.associate = (models) => {
     }
   });
 };
- 
+
   return Course;
 };

@@ -20,17 +20,23 @@ router.get('/courses',async (req,res)=>{
 //Returns the course(user included) based on course ID
 router.get('/courses/:id', async (req,res)=>{
     const courseId = req.params.id;
-    const course = await crud.getCourses(courseId);
+    const course = await crud.getCourses(courseId,res);
+if(course!=null){
     res.status(200)
     res.json(course);
+ }
 })
 //...........................................................................................................//
 
 
 //..............................................Creates a course.............................................//
 router.post('/courses/',[
-    body('description').exists().withMessage("Please provide a description on the requests body")
-    ,body('title').exists().withMessage("Please provide a title on the requests body")
+    check('title')
+        .exists({ checkNull: true, checkFalsy: true })
+        .withMessage('Please provide a value for the title '),
+    check('description')
+        .exists({ checkNull: true, checkFalsy: true })
+        .withMessage('Please provide a value for the description '),
 ], 
 
 userAuthentication.authenticate, 
@@ -60,8 +66,13 @@ if(!errors.isEmpty()){
 
 //.......................................Updates a course and returns no content..................................//
 router.put('/courses/:id',[
-    body('description').exists().withMessage("Please provide a description on the requests body")
-    ,body('title').exists().withMessage("Please provide a title on the requests body")
+    check('title')
+        .exists({ checkNull: true, checkFalsy: true })
+        .withMessage('Please provide a value for the title '),
+    check('description')
+        .exists({ checkNull: true, checkFalsy: true })
+        .withMessage('Please provide a value for the description '),
+    
 ],
 //if authenticated proceeds to route handler
 userAuthentication.authenticate,
@@ -70,17 +81,16 @@ async (req,res)=>{
 
 //Finds the validation errors in this request and wraps them in an object with handy functions    
   const errors = validationResult(req);
-//verify that the received description and title are valid
+  //verify that the received description and title are valid
 if(!errors.isEmpty()){
     res.status(400);
     res.json({error:errors.array()});
-    
 }
 
 //Update course if validation passed 
 else{
     const courseId = req.params.id;
-    await crud.updateCourse(courseId,req,res);  
+    await crud.updateCourse(courseId,req,res); 
 }
 
 });

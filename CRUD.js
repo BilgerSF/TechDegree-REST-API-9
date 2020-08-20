@@ -2,6 +2,7 @@ const db = require('./db');
 const {User,Course} = db.models;
 //password hasher module
 const bcrypt = require('bcryptjs');
+const { Sequelize } = require('./db');
 
 //..................................................Users CRUD............................................................//
 
@@ -46,7 +47,7 @@ else{
 //..................................................Courses CRUD............................................................//
 
 //Get courses with user
-async function getCourses(courseId){
+async function getCourses(courseId,res){
   let courses;
   if(courseId === undefined){
      courses = await Course.findAll({attributes:['id','userId','title','description','estimatedTime','materialsNeeded'],
@@ -56,7 +57,12 @@ async function getCourses(courseId){
     courses = await Course.findByPk(courseId,{attributes:['id','userId','title','description','estimatedTime','materialsNeeded'],
                                include:[ {model:User,attributes:['firstName','lastName','emailAddress']}  ]});
   }
-     return courses    
+  if(courses!=null){
+     return courses 
+  }
+  else{
+    res.status(404).end();
+  }   
 }
 
 
@@ -86,6 +92,11 @@ async function createCourse(req){
 //Update a course
 async function updateCourse(courseId,req,res){
 
+  //Verify that the course exitst before proceeding
+  const courseExists = await Course.findByPk(courseId);
+ 
+if(courseExists != null){
+
  //......check if the logged in user matches the user related to that course to be updated.....//
   const currentUser = req.currentUser.emailAddress;
  //get users email from course
@@ -109,12 +120,20 @@ async function updateCourse(courseId,req,res){
     res.status(403)
     res.json({UpdateStatus:"This course belongs to another user"});
   }
+
+}
+else{
+  res.status(404).end();
+}
   
 }
 
 //Delete a course
 async function deleteCourse(courseId,req,res){
-
+   
+  //Verify that the course exitst before proceeding
+   const courseExists = await Course.findByPk(courseId);
+if(courseExists!=null){
    //......check if the logged in user matches the user related to that course to be updated.....//
     const currentUser = req.currentUser.emailAddress;
    //get users email from course
@@ -135,6 +154,10 @@ async function deleteCourse(courseId,req,res){
     res.status(403);
     res.json({Status:"This course belongs to another user"});
   }
+}
+else{
+  res.status(404).end();
+}
 
 }
 
