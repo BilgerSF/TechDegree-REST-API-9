@@ -15,8 +15,8 @@ To create a back-end application that allows users to manage courses on a school
 
 ## Installation
 - Install all the dependencies(nmp modules)
- npm install
+  - npm install
 - Start the server
- npm nodemon app.js
+  - npm nodemon app.js
 - Send request to the server by an API tool.
 
