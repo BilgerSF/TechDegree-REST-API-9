@@ -6,7 +6,12 @@ const bcrypt = require('bcryptjs');
 //..................................................Users CRUD............................................................//
 
 //..........Create a user.........//
-async function createUser(req){
+async function createUser(req,res){
+
+  // check if username already exists
+  const emailExists = await User.findAll({where:{emailAddress:req.body.emailAddress}});
+
+if(emailExists.length < 1){
    try{
      //hash the password before inserting password to database
      const salt = bcrypt.genSaltSync();
@@ -17,6 +22,9 @@ async function createUser(req){
         emailAddress: req.body.emailAddress,
         password: hash
       });
+      //Send response of success
+      res.status(201);
+      res.location('/').end();
      }
     catch(error){
       if (error.name === 'SequelizeValidationError') {
@@ -26,7 +34,13 @@ async function createUser(req){
         else {
             throw error;
           }
+      }
     }
+  
+else{
+    res.status(409);
+    res.json("Status: User already exists")
+  }
 }
 
 //..................................................Courses CRUD............................................................//
@@ -35,10 +49,12 @@ async function createUser(req){
 async function getCourses(courseId){
   let courses;
   if(courseId === undefined){
-     courses = await Course.findAll({include:[ {model:User,attributes:['firstName','lastName','emailAddress']}  ]});
+     courses = await Course.findAll({attributes:['id','userId','title','description','estimatedTime','materialsNeeded'],
+                                     include:[ {model:User,attributes:['firstName','lastName','emailAddress']}  ]});
   }
   else{
-    courses = await Course.findByPk(courseId,{include:[{model:User,attributes:['firstName','lastName','emailAddress']} ]});
+    courses = await Course.findByPk(courseId,{attributes:['id','userId','title','description','estimatedTime','materialsNeeded'],
+                               include:[ {model:User,attributes:['firstName','lastName','emailAddress']}  ]});
   }
      return courses    
 }
@@ -68,30 +84,63 @@ async function createCourse(req){
 }
 
 //Update a course
-async function updateCourse(courseId,req){
+async function updateCourse(courseId,req,res){
+
+ //......check if the logged in user matches the user related to that course to be updated.....//
+  const currentUser = req.currentUser.emailAddress;
+ //get users email from course
+  const databaseUserObj = await Course.findByPk(courseId,{include:[{model:User,attributes:["emailAddress"]}] });
+  const databaseUserEmail = databaseUserObj.User.dataValues.emailAddress;
+  //............................................................................................//
   const course =  await Course.findByPk(courseId);
-  course.userId = req.body.userId;
   course.title = req.body.title;
   course.description = req.body.description;
   course.estimatedTime = req.body.estimatedTime;
   course.materialsNeeded = req.body.materialsNeeded;
-  await course.save();
+ 
+  //Update only if the course belong to the current authenticated user
+  if( databaseUserEmail === currentUser){
+    await course.save();
+    //Success respond
+    res.status(204);
+    res.end();
+  }
+  else{
+    res.status(403)
+    res.json({UpdateStatus:"This course belongs to another user"});
+  }
   
 }
 
 //Delete a course
-async function deleteCourse(courseId){
-     //find course
-     const course = await Course.findByPk(courseId);
-     //Delete 
-     await course.destroy();
+async function deleteCourse(courseId,req,res){
+
+   //......check if the logged in user matches the user related to that course to be updated.....//
+    const currentUser = req.currentUser.emailAddress;
+   //get users email from course
+    const databaseUserObj = await Course.findByPk(courseId,{include:[{model:User,attributes:["emailAddress"]}] });
+    const databaseUserEmail = databaseUserObj.User.dataValues.emailAddress;
+   //.............................................................................................//
+   
+  //Delete a course only if the course belongs to the authenticated user
+  if(databaseUserEmail === currentUser){
+    //find course
+      const course = await Course.findByPk(courseId);
+    //Delete 
+      await course.destroy();
+      res.status(204);
+      res.end();
+  }
+  else{
+    res.status(403);
+    res.json({Status:"This course belongs to another user"});
+  }
+
 }
 
 
 
-
-
-
+//Export all the functions
 module.exports = {createUser:createUser,
                   getCourses:getCourses,
                   createCourse:createCourse,

@@ -9,8 +9,7 @@ const userAuthentication = require('../userAuthentication');
 
 //...............................Returns currently authenticated user....................//
 router.get('/users',userAuthentication.authenticate,(req,res)=>{
-    console.log(req.currentUser)
-    console.log(req.currentUser+ "has succesfully logged in");
+   
     res.status(200);
     res.json({AuthenticatedUser:{
                                 firstName:req.currentUser.firstName,
@@ -25,7 +24,7 @@ router.get('/users',userAuthentication.authenticate,(req,res)=>{
 router.post('/users',[
    body('firstName').exists().withMessage('Please provide a firstName on the requests body'),
    body('lastName').exists().withMessage('Please provide a lastName on the requests body'),
-   body('emailAddress').exists().withMessage('Please provide a emailAddress on the requests body'), 
+   body('emailAddress').exists().isEmail().withMessage('Please provide a emailAddress on the requests body'), 
    body('password').exists().withMessage('Please provide a password on the requests body') 
 ],
    async (req,res)=>{
@@ -39,10 +38,8 @@ if(!errors.isEmpty()){
 }
 //create a user if valdiation passed
 else{
-    //Create the user
-    crud.createUser(req);
-    res.status(201);
-    res.location('/').end();
+    //Create the user(if does not exists already)
+    await crud.createUser(req,res);
    }
 });
 //........................................................................................//

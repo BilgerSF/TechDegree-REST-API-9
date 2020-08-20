@@ -1,3 +1,9 @@
+/*
+TechDegree project 9: REST API
+Author: Gerardo Bilbatua
+createdOn: 08/19/2020
+*/
+
 'use strict';
 
 // load modules

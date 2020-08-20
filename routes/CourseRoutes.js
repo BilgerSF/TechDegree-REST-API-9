@@ -1,10 +1,12 @@
-const express = require('express');
-const router = express.Router();
+const express = require('express'); 
+const router = express.Router(); 
 const db = require('../db');
 const {Course} = db.models;
 const crud = require('../CRUD');
 const {check,body,validationResult} = require('express-validator');
-//.............Course Routes.............//
+const userAuthentication = require('../userAuthentication');
+
+//.............................................Course Routes.................................................//
 
 
 
@@ -29,9 +31,11 @@ router.get('/courses/:id', async (req,res)=>{
 router.post('/courses/',[
     body('description').exists().withMessage("Please provide a description on the requests body")
     ,body('title').exists().withMessage("Please provide a title on the requests body")
-] 
+], 
 
-, async (req,res)=>{
+userAuthentication.authenticate, 
+
+async (req,res)=>{
 //Finds the validation errors in this request and wraps them in an object with handy functions    
 const errors = validationResult(req);
 //verify that the received description and title are valid
@@ -58,8 +62,11 @@ if(!errors.isEmpty()){
 router.put('/courses/:id',[
     body('description').exists().withMessage("Please provide a description on the requests body")
     ,body('title').exists().withMessage("Please provide a title on the requests body")
-],  
-  async (req,res)=>{
+],
+//if authenticated proceeds to route handler
+userAuthentication.authenticate,
+
+async (req,res)=>{
 
 //Finds the validation errors in this request and wraps them in an object with handy functions    
   const errors = validationResult(req);
@@ -70,12 +77,10 @@ if(!errors.isEmpty()){
     
 }
 
-//Update course if validation passed
+//Update course if validation passed 
 else{
     const courseId = req.params.id;
-    await crud.updateCourse(courseId,req);
-    res.status(204);
-    res.end();
+    await crud.updateCourse(courseId,req,res);  
 }
 
 });
@@ -84,10 +89,12 @@ else{
 
 
 //......................................Deletes a courses and returns no content..................................//
-router.delete('/courses/:id',async (req,res)=>{
-    await crud.deleteCourse(req.params.id);
-    res.status(204);
-    res.end();
+router.delete('/courses/:id',
+
+userAuthentication.authenticate,
+
+async (req,res)=>{
+    await crud.deleteCourse(req.params.id,req,res);
 });
 //.................................................................................................................//
 
