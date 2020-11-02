@@ -3,18 +3,9 @@
 const Sequelize = require('sequelize');
 //create an instance of sequelize class
 //assign contructor properties/values
-const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: 'fsjstd-restapi.db',
-  logging: false,
-
-  // global options: You set the properties for all tables in one place rather than having to set them separately.
-  /*
-   define: {
-    freezeTableName: true,
-    timestamps: false,
-  }
-  */
+const sequelize = new Sequelize('heroku_c69118406638b52','b336013d657fc6','df08885c',{
+  host: 'us-cdbr-east-02.cleardb.com',
+  dialect:'mysql'
 });
 
 const db = {
@@ -45,7 +36,7 @@ connect();
 
 //Generate/syncronize tables
 sequelize.sync({
-  force: false
+  force: true
 });
 
 module.exports = db;
