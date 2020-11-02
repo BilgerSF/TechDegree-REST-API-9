@@ -14,7 +14,9 @@ router.get('/users',userAuthentication.authenticate,(req,res)=>{
     res.json({AuthenticatedUser:{
                                 firstName:req.currentUser.firstName,
                                 lastName:req.currentUser.lastName,
-                                emailAddress:req.currentUser.emailAddress} 
+                                emailAddress:req.currentUser.emailAddress,
+                                userId: req.currentUser.id,
+                                } 
                                });
 });
 

@@ -68,6 +68,8 @@ async function getCourses(courseId,res){
 
 //Create a course
 async function createCourse(req){
+  console.log(req.body.userId);
+  console.log(req.body.title);
    try{
      var newCourse =   await Course.create({
           "userId": req.body.userId,
