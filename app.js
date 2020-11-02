@@ -10,7 +10,8 @@ createdOn: 08/19/2020
 const express = require('express');
 const morgan = require('morgan');
 const UserRoutes = require('./routes/UserRoutes');
-const CourseRoutes = require('./routes/CourseRoutes')
+const CourseRoutes = require('./routes/CourseRoutes');
+const cors = require('cors');
 
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
@@ -18,6 +19,8 @@ const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'tr
 // create the Express app
 const app = express();
 
+//Enable client to server request
+app.use(cors());
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
