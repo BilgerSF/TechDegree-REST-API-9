@@ -21,6 +21,15 @@ const app = express();
 
 //Enable client to server request
 app.use(cors());
+
+//fix mix content browser errr
+app.use(function (req, res, next){
+  if (req.headers['x-forwarded-proto'] === 'https') {
+    res.redirect('http://' + req.hostname + req.url);
+  } else {
+    next();
+  }
+});
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
