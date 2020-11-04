@@ -36,7 +36,7 @@ connect();
 
 //Generate/syncronize tables
 sequelize.sync({
-  force: true
+  force: false
 });
 
 module.exports = db;
